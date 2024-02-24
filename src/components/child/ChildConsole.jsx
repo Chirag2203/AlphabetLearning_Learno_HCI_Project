@@ -7,6 +7,8 @@ import { alphabetData } from "../../utils/data"; // Import the alphabet data
 const ChildConsole = () => {
   const [currentIndex, setCurrentIndex] = useState(0); // State to track the current index
   const [isDrawing, setIsDrawing] = useState(false); // State to track drawing status
+  const [penColor, setPenColor] = useState("#000000"); // State to track pen color
+  const [penWidth, setPenWidth] = useState(5); // State to track pen width
   const canvasRef = useRef(null); // Ref to the canvas element
   const letterImageRef = useRef(null); // Ref to the letter image
 
@@ -22,15 +24,16 @@ const ChildConsole = () => {
     context.font = "250px Arial"; // Set the font size and family
     context.fillText(alphabetData[currentIndex].letter, 400, 260); // Draw the letter on the canvas
   };
+
   const speakWord = () => {
     // Check if the SpeechSynthesis API is supported
-    if ('speechSynthesis' in window) {
+    if ("speechSynthesis" in window) {
       const speech = new SpeechSynthesisUtterance(word); // Create a new SpeechSynthesisUtterance object with the word
-      speech.lang = 'en-US'; // Set the language
+      speech.lang = "en-US"; // Set the language
       speech.rate = 1; // Set the speech rate (optional)
       window.speechSynthesis.speak(speech); // Speak the word
     } else {
-      console.log('Speech synthesis is not supported in this browser.');
+      console.log("Speech synthesis is not supported in this browser.");
     }
   };
 
@@ -68,6 +71,8 @@ const ChildConsole = () => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     context.lineTo(x, y);
+    context.strokeStyle = penColor; // Set pen color
+    context.lineWidth = penWidth; // Set pen width
     context.stroke();
   };
 
@@ -117,7 +122,22 @@ const ChildConsole = () => {
           onMouseOut={handleMouseUp}
           width={1020}
           height={350}
-          style={{ border: "1px solid #000", backgroundColor: "#fff", cursor: "pointer  " }}
+          style={{ border: "1px solid #000", backgroundColor: "#fff", cursor: "pointer" }}
+        />
+      </div>
+      <div className="flex items-center justify-center mt-4">
+        <input
+          type="color"
+          value={penColor}
+          onChange={(e) => setPenColor(e.target.value)}
+          className="mr-4"
+        />
+        <input
+          type="range"
+          min="1"
+          max="20"
+          value={penWidth}
+          onChange={(e) => setPenWidth(e.target.value)}
         />
       </div>
     </div>
