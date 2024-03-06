@@ -5,6 +5,7 @@ import ParentConsole from './components/parent/ParentConsole'
 import ChildConsole from './components/child/ChildConsole'
 import Header from './components/shared/Header'
 import Footer from './components/shared/Footer'
+import RecognitionConsole from './components/Recognition/RecognitionConsole'
 
 const App = () => {
   return (
@@ -14,6 +15,7 @@ const App = () => {
         <Routes>
           <Route path="/parent" element={<ParentConsole />} />
           <Route path="/child" element={<ChildConsole />} />
+          <Route path="/recognition" element ={<RecognitionConsole/>}/> 
           <Route path="/" element={<Home />} />
         </Routes>
         <Footer />

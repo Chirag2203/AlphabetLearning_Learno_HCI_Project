@@ -19,6 +19,10 @@ const Header = () => {
       title: "Child",
       path: "/child",
     },
+    {
+      title : "Recognition",
+      path :"/recognition"
+    }
   ];
 
   // Navbar toggle
