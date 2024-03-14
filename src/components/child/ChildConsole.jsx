@@ -29,38 +29,38 @@ const ChildConsole = () => {
           {
             element: document.querySelector(".clear-button"),
             intro: "This button clears the canvas.",
-             tooltipClass: "black-tooltip",
+            tooltipClass: "black-tooltip",
           },
           {
             element: document.querySelector(".speak-button"),
             intro: "This button speaks the current word.",
-             tooltipClass: "black-tooltip",
+            tooltipClass: "black-tooltip",
           },
           {
             element: document.querySelector(".previous-button"),
             intro: "This button shows the previous letter.",
-             tooltipClass: "black-tooltip",
+            tooltipClass: "black-tooltip",
           },
           {
             element: document.querySelector(".next-button"),
             intro: "This button shows the next letter.",
-             tooltipClass: "black-tooltip",
+            tooltipClass: "black-tooltip",
           },
           {
             element: document.querySelector("canvas-div"),
             intro: "This is the drawing area.",
-             tooltipClass: "black-tooltip",
+            tooltipClass: "black-tooltip",
           },
 
           {
             element: document.querySelector(".color-input"),
             intro: "This input changes the pen color.",
-             tooltipClass: "black-tooltip",
+            tooltipClass: "black-tooltip",
           },
           {
             element: document.querySelector(".width-input"),
             intro: "This input changes the pen width.",
-             tooltipClass: "black-tooltip",
+            tooltipClass: "black-tooltip",
           },
         ],
       })
@@ -73,7 +73,6 @@ const ChildConsole = () => {
     context.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
     drawLetter(context); // Draw the lighter shade of the letter on the canvas
     setIsLetterCorrect(null); // Reset letter correctness
-   
   }, [currentIndex]);
   useEffect(() => {
     startIntro();

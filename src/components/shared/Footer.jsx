@@ -12,7 +12,7 @@ const Footer = () => {
       <span class="ml-3 text-xl">Learno</span>
     </a>
     <p class="text-sm text-white sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-white sm:py-2 sm:mt-0 mt-4">© 2024 Learno —
-      <a href="https://twitter.com/knyttneve" class="text-white ml-1" rel="noopener noreferrer" target="_blank">@chiragrajput 211IT018</a>
+      {/* <a href="https://twitter.com/knyttneve" class="text-white ml-1" rel="noopener noreferrer" target="_blank">@chiragrajput 211IT018</a> */}
     </p>
     <span class="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
       <a class="text-white">
