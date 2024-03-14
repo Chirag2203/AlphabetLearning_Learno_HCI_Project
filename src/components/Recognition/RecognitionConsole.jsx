@@ -5,11 +5,15 @@ import { Button } from "../ui/button";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { HiSpeakerphone } from "react-icons/hi";
 import { alphabetData } from "../../utils/data"; // Import the alphabet data
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const RecognitionConsole = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currLetter, setCurrLetter] = useState("");
+  const[wrongLetter,setWrongLetter] = useState(false);
+  const [correct, setCorrect] = useState(false);
+  const[wrongLetterWord,setWrongLetterWord] = useState("");
 // Update currLetter whenever currentIndex changes
 useEffect(() => {
   const { letter } = alphabetData[currentIndex];
@@ -64,11 +68,18 @@ useEffect(() => {
     // Compare the first prediction with the displayed letter (convert both to uppercase for case-insensitive comparison)
     if (firstPredictionText.toUpperCase() === currLetter.trim().toUpperCase()) {
       // Display a success alert if they match
-      alert("Prediction matches the displayed letter!");
+      toast.success("Prediction matches the displayed letter!");
+      // alert("Prediction matches the displayed letter!");
       clearCanvas();
+      setCorrect(true)
+      setWrongLetter(false)
     } else {
+      setWrongLetter(true)
+      setCorrect(false)
+      setWrongLetterWord(firstPredictionText)
       // Display a failure alert if they do not match
-      alert("Prediction does not match the displayed letter.");
+      toast.error("Prediction does not match the displayed letter."); 
+      // alert("Prediction does not match the displayed letter.");
     }
   };
   
@@ -109,6 +120,7 @@ useEffect(() => {
 
   return (
     <div className="flex flex-col items-center gap-4">
+      <ToastContainer/>
       <h1 className="text-center text-4xl font-bold pt-24">
         Letter Auto Recognition
       </h1>
@@ -154,6 +166,10 @@ useEffect(() => {
         </div>
       </div>
       <h1>Write in the given area</h1>
+      {
+        wrongLetter && <h1 className="text-2xl font-bold">Wrong letter, you have written {wrongLetterWord} </h1>
+      }
+      {correct && <h1 className="text-2xl font-bold">You are correct 🎉🎉 </h1>}
       {/*here the text is written by the child and is recognised by the model */}
       <div
         className="pt-4 min-h-screen"
