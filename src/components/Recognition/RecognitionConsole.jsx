@@ -103,6 +103,26 @@ const RecognitionConsole = () => {
     }
   };
 
+  useEffect(() => {
+    // Speak "Please write in the specified areas" on page load
+    const speakOnLoad = () => {
+      const message = "Hello buddy! Please write in the specified area.";
+      const speech = new SpeechSynthesisUtterance(message);
+      speech.lang = "en-US";
+      speech.pitch = 0; // Adjust the pitch (0 to 2, default 1)
+      speech.rate = 0.8; // Adjust the rate (0.1 to 10, default 1)
+      speech.volume = 1;
+      window.speechSynthesis.speak(speech);
+    };
+
+    speakOnLoad();
+
+    // Clean up the speech synthesis object
+    return () => {
+      window.speechSynthesis.cancel();
+    };
+  }, []);
+
   const speakWord = () => {
     // Check if the SpeechSynthesis API is supported
     if ("speechSynthesis" in window) {
