@@ -1,5 +1,5 @@
 import "./style.css";
-
+import ConfettiExplosion from 'react-confetti-explosion';
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
@@ -7,18 +7,31 @@ import { HiSpeakerphone } from "react-icons/hi";
 import { alphabetData } from "../../utils/data"; // Import the alphabet data
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import cheer from "../../assets/crowd-cheering.mp3"
 
 const RecognitionConsole = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currLetter, setCurrLetter] = useState("");
-  const[wrongLetter,setWrongLetter] = useState(false);
+  const [wrongLetter, setWrongLetter] = useState(false);
   const [correct, setCorrect] = useState(false);
-  const[wrongLetterWord,setWrongLetterWord] = useState("");
-// Update currLetter whenever currentIndex changes
-useEffect(() => {
-  const { letter } = alphabetData[currentIndex];
-  setCurrLetter(() => letter); // Using callback function syntax
-}, [currentIndex])
+  const [wrongLetterWord, setWrongLetterWord] = useState("");
+  // Update currLetter whenever currentIndex changes
+  useEffect(() => {
+    const { letter } = alphabetData[currentIndex];
+    setCurrLetter(() => letter); // Using callback function syntax
+  }, [currentIndex]);
+
+  // play sound when correct is true for 3 sec
+  useEffect(() => {
+    if (correct) {
+      const audio = new Audio(cheer);
+      audio.play();
+      setTimeout(() => {
+        audio.pause();
+      }, 6000);
+    }
+  }, [correct]);
+
 
   useEffect(() => {
     // Include your external JavaScript file
@@ -33,7 +46,7 @@ useEffect(() => {
     script.onload = () => {
       // Code to execute after the external script has loaded
     };
-    // 
+    //
 
     // Append the script to the document
     document.body.appendChild(script);
@@ -58,31 +71,37 @@ useEffect(() => {
   // Function to handle "Check" button click
   const handleCheck = () => {
     // Get the text content of the first prediction
-    const firstPredictionText = document.getElementById("prediction-0").textContent.trim();
-  
+    const firstPredictionText = document
+      .getElementById("prediction-0")
+      .textContent.trim();
+
     // Get the letter displayed in the child console directly from the alphabetData array
     const { letter } = alphabetData[currentIndex];
-  console.log("letter",letter)
-    console.log("Prediction value:", firstPredictionText, "Current letter value:", currLetter);
-  
+    console.log("letter", letter);
+    console.log(
+      "Prediction value:",
+      firstPredictionText,
+      "Current letter value:",
+      currLetter
+    );
+
     // Compare the first prediction with the displayed letter (convert both to uppercase for case-insensitive comparison)
     if (firstPredictionText.toUpperCase() === currLetter.trim().toUpperCase()) {
       // Display a success alert if they match
       toast.success("Prediction matches the displayed letter!");
       // alert("Prediction matches the displayed letter!");
       clearCanvas();
-      setCorrect(true)
-      setWrongLetter(false)
+      setCorrect(true);
+      setWrongLetter(false);
     } else {
-      setWrongLetter(true)
-      setCorrect(false)
-      setWrongLetterWord(firstPredictionText)
+      setWrongLetter(true);
+      setCorrect(false);
+      setWrongLetterWord(firstPredictionText);
       // Display a failure alert if they do not match
-      toast.error("Prediction does not match the displayed letter."); 
+      toast.error("Prediction does not match the displayed letter.");
       // alert("Prediction does not match the displayed letter.");
     }
   };
-  
 
   const speakWord = () => {
     // Check if the SpeechSynthesis API is supported
@@ -99,15 +118,13 @@ useEffect(() => {
   const handleNext = () => {
     const nextIndex = (currentIndex + 1) % alphabetData.length;
     const nextLetter = alphabetData[nextIndex].letter;
-    
+
     setCurrentIndex(nextIndex);
     setCurrLetter(nextLetter);
-    
+
     console.log("current letter set to ", nextLetter);
     clearCanvas();
   };
-  
-
 
   const handlePrevious = () => {
     setCurrentIndex(
@@ -115,12 +132,12 @@ useEffect(() => {
     ); // Decrement index and handle looping
   };
 
-  
   const { letter, word, image } = alphabetData[currentIndex];
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <ToastContainer/>
+      {correct && <ConfettiExplosion numberOfPieces={400} duration={6000} />}
+      <ToastContainer />
       <h1 className="text-center text-4xl font-bold pt-24">
         Letter Auto Recognition
       </h1>
@@ -128,7 +145,6 @@ useEffect(() => {
       <div className="w-3/4 text-3xl font-semibold bg-gradient-to-r from-purple-600 py-2 rounded-md to-purple-300 px-4 flex sm:flex-row flex-col justify-between">
         <p className="">Child Console</p>
         <div className="flex flex-wrap items-center gap-2 sm:mt-0 mt-4">
-          
           <Button
             onClick={speakWord}
             className="speak-button border border-purple-500 hover:bg-white hover:text-black flex items-center gap-2"
@@ -149,7 +165,7 @@ useEffect(() => {
           </Button>
           {/* this button should compare the current letter dislpayed with the model's first prediction */}
           <Button
-          onClick={handleCheck}
+            onClick={handleCheck}
             id="check-button"
             className="check-button border border-purple-500 hover:bg-white hover:text-black flex items-center gap-2"
           >
@@ -166,10 +182,13 @@ useEffect(() => {
         </div>
       </div>
       <h1>Write in the given area</h1>
-      {
-        wrongLetter && <h1 className="text-2xl font-bold">Wrong letter, you have written {wrongLetterWord} </h1>
-      }
-      {correct && <h1 className="text-2xl font-bold">You are correct 🎉🎉 </h1>}
+      {wrongLetter && (
+        <h1 className="text-2xl font-bold">
+          Wrong letter, you have written {wrongLetterWord}{" "}
+        </h1>
+      )}
+      {correct && <h1 className="text-2xl font-bold">You are correct 🎉🎉 </h1> }
+      {correct && <ConfettiExplosion numberOfPieces={400} duration={4000} />}
       {/*here the text is written by the child and is recognised by the model */}
       <div
         className="pt-4 min-h-screen"
