@@ -193,6 +193,8 @@ const RecognitionConsole = () => {
       ]);
       console.log(chatHistory)
       setAiText(data)
+      // speak this ai text
+      speakWord(data)
       setLoading(false)
     } catch (error) {
       setLoading(false)
@@ -204,7 +206,8 @@ const RecognitionConsole = () => {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      {correct && <ConfettiExplosion numberOfPieces={400} duration={6000} />}
+      {!loading && correct && <ConfettiExplosion numberOfPieces={400} duration={4000} />}
+      {!loading && correct && <ConfettiExplosion numberOfPieces={400} duration={6000} />}
       <ToastContainer />
       <h1 className="text-center text-4xl font-bold pt-24">
         Letter Auto Recognition
@@ -246,7 +249,6 @@ const RecognitionConsole = () => {
           <img src={image} className="w-36" alt={letter} />
         </div>
       </div>
-      <h1>Write in the given area</h1>
       {loading && (
         <Loader />  
       )}
@@ -264,8 +266,8 @@ const RecognitionConsole = () => {
         <h1 className="text-2xl font-bold">You are correct 🎉🎉 </h1>
         <h1 className="text-2xl font-bold text-center">{AiText} </h1>
       </div>)}
-      {correct && <ConfettiExplosion numberOfPieces={200} duration={6000} />}
-      {correct && <ConfettiExplosion numberOfPieces={400} duration={4000} />}
+      {!loading && correct && <ConfettiExplosion numberOfPieces={200} duration={6000} />}
+      {!loading && correct && <ConfettiExplosion numberOfPieces={400} duration={4000} />}
       {/*here the text is written by the child and is recognised by the model */}
       <div
         className="pt-4 min-h-screen"

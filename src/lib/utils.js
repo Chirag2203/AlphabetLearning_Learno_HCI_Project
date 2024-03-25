@@ -9,18 +9,20 @@ export function cn(...inputs) {
 export const speakOnLoad = (message) => {
      
   const speech = new SpeechSynthesisUtterance(message);
-  speech.lang = "en-US";
-  speech.pitch = 0; // Adjust the pitch (0 to 2, default 1)
-  speech.rate = 0.8; // Adjust the rate (0.1 to 10, default 1)
+  speech.lang = "en-UK";
+  speech.pitch = 1.4; // Adjust the pitch (0 to 2, default 1)
+  speech.rate = 0.9; // Adjust the rate (0.1 to 10, default 1)
   speech.volume = 1;
   window.speechSynthesis.speak(speech);
+  
 };
 
 export const speakWord = (word) => {
   if ("speechSynthesis" in window) {
     const speech = new SpeechSynthesisUtterance(word);
     speech.lang = "en-US";
-    speech.rate = 1;
+    speech.pitch = 1.4; // Adjust the pitch (0 to 2, default 1)
+    speech.rate = 0.9; 
     window.speechSynthesis.speak(speech);
   } else {
     console.log("Speech synthesis is not supported in this browser.");

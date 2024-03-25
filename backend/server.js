@@ -77,6 +77,7 @@ app.post("/motivate", async (req, res) => {
     history: combinedHistory, // Pass the combined history to the startChat function
   });
 
+  
   try {
     console.log("Sending message to model");
     const result = await chat.sendMessage(msg);
