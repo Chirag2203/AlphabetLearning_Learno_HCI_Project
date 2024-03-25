@@ -1,13 +1,14 @@
 import "./style.css";
-import ConfettiExplosion from 'react-confetti-explosion';
+import ConfettiExplosion from "react-confetti-explosion";
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { HiSpeakerphone } from "react-icons/hi";
-import { alphabetData } from "../../utils/data"; // Import the alphabet data
+import { alphabetData } from "../../utils/data";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import cheer from "../../assets/crowd-cheering.mp3"
+import cheer from "../../assets/crowd-cheering.mp3";
+import { speakOnLoad, speakWord } from "@/lib/utils";
 
 const RecognitionConsole = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -32,45 +33,27 @@ const RecognitionConsole = () => {
     }
   }, [correct]);
 
-
   useEffect(() => {
-    // Include your external JavaScript file
     const script = document.createElement("script");
     const script2 = document.createElement("script");
     script.src = "src/components/Recognition/letterRecognition.js";
-    script2.src = "src/components/Recognition/weights.js"; // Replace with the actual path to your external script
+    script2.src = "src/components/Recognition/weights.js";
     script.async = true;
     script2.async = true;
 
-    // Attach an event listener to check when the script has loaded
-    script.onload = () => {
-      // Code to execute after the external script has loaded
-    };
-    //
-
-    // Append the script to the document
     document.body.appendChild(script);
     document.body.appendChild(script2);
     const checkButton = document.getElementById("check-button");
-    // if (checkButton) {
-    //   checkButton.addEventListener("click", handleCheck);
-    // } else {
-    //   console.error("Check button not found!");
-    // }
-
-    // Cleanup
     return () => {
       document.body.removeChild(script);
       document.body.removeChild(script2);
-      // Remove event listener when component unmounts
       if (checkButton) {
         checkButton.removeEventListener("click", handleCheck);
       }
     };
   }, []);
-  // Function to handle "Check" button click
+
   const handleCheck = () => {
-    // Get the text content of the first prediction
     const firstPredictionText = document
       .getElementById("prediction-0")
       .textContent.trim();
@@ -87,9 +70,7 @@ const RecognitionConsole = () => {
 
     // Compare the first prediction with the displayed letter (convert both to uppercase for case-insensitive comparison)
     if (firstPredictionText.toUpperCase() === currLetter.trim().toUpperCase()) {
-      // Display a success alert if they match
       toast.success("Prediction matches the displayed letter!");
-      // alert("Prediction matches the displayed letter!");
       clearCanvas();
       setCorrect(true);
       setWrongLetter(false);
@@ -97,48 +78,23 @@ const RecognitionConsole = () => {
       setWrongLetter(true);
       setCorrect(false);
       setWrongLetterWord(firstPredictionText);
-      // Display a failure alert if they do not match
       toast.error("Prediction does not match the displayed letter.");
-      // alert("Prediction does not match the displayed letter.");
     }
   };
 
   useEffect(() => {
-    // Speak "Please write in the specified areas" on page load
-    const speakOnLoad = () => {
-      const message = "Hello buddy! Please write in the specified area.";
-      const speech = new SpeechSynthesisUtterance(message);
-      speech.lang = "en-US";
-      speech.pitch = 0; // Adjust the pitch (0 to 2, default 1)
-      speech.rate = 0.8; // Adjust the rate (0.1 to 10, default 1)
-      speech.volume = 1;
-      window.speechSynthesis.speak(speech);
-    };
-
-    speakOnLoad();
-
-    // Clean up the speech synthesis object
+    const message = "Hello buddy! Please write in the specified area.";
+    speakOnLoad(message);
     return () => {
       window.speechSynthesis.cancel();
     };
   }, []);
 
-  const speakWord = () => {
-    // Check if the SpeechSynthesis API is supported
-    if ("speechSynthesis" in window) {
-      const speech = new SpeechSynthesisUtterance(word); // Create a new SpeechSynthesisUtterance object with the word
-      speech.lang = "en-US"; // Set the language
-      speech.rate = 1; // Set the speech rate (optional)
-      window.speechSynthesis.speak(speech); // Speak the word
-    } else {
-      console.log("Speech synthesis is not supported in this browser.");
-    }
-  };
-
-  const handleNext = () => {
+   const handleNext = () => {
     const nextIndex = (currentIndex + 1) % alphabetData.length;
     const nextLetter = alphabetData[nextIndex].letter;
 
+    setCorrect(false)
     setCurrentIndex(nextIndex);
     setCurrLetter(nextLetter);
 
@@ -147,9 +103,10 @@ const RecognitionConsole = () => {
   };
 
   const handlePrevious = () => {
+    setCorrect(false)
     setCurrentIndex(
       (prevIndex) => (prevIndex - 1 + alphabetData.length) % alphabetData.length
-    ); // Decrement index and handle looping
+    );
   };
 
   const { letter, word, image } = alphabetData[currentIndex];
@@ -161,43 +118,41 @@ const RecognitionConsole = () => {
       <h1 className="text-center text-4xl font-bold pt-24">
         Letter Auto Recognition
       </h1>
-      {/* this is used to display the text */}
-      <div className="w-3/4 text-3xl font-semibold bg-gradient-to-r from-purple-600 py-2 rounded-md to-purple-300 px-4 flex sm:flex-row flex-col justify-between">
+      <div className="utility-bar">
         <p className="">Child Console</p>
         <div className="flex flex-wrap items-center gap-2 sm:mt-0 mt-4">
           <Button
-            onClick={speakWord}
-            className="speak-button border border-purple-500 hover:bg-white hover:text-black flex items-center gap-2"
+            onClick={()=>{speakWord(word)}}
+            className="speak-button utility-btn"
           >
             Speak <HiSpeakerphone />
           </Button>
           <Button
             onClick={handlePrevious}
-            className="previous-button border border-purple-500 hover:bg-white hover:text-black flex items-center gap-2"
+            className="previous-button utility-btn"
           >
             <FaArrowLeft /> Previous{" "}
           </Button>
           <Button
             onClick={handleNext}
-            className="next-button border border-purple-500 hover:bg-white hover:text-black flex items-center gap-2"
+            className="next-button utility-btn"
           >
             Next <FaArrowRight />
           </Button>
-          {/* this button should compare the current letter dislpayed with the model's first prediction */}
           <Button
             onClick={handleCheck}
             id="check-button"
-            className="check-button border border-purple-500 hover:bg-white hover:text-black flex items-center gap-2"
+            className="check-button utility-btn"
           >
             Check
           </Button>
         </div>
       </div>
       <div className="flex items-center gap-4 my-4 w-3/4 ">
-        <div className="bg-white w-1/2 h-40 flex items-center justify-center rounded-md">
+        <div className="utility-display">
           <p className="text-black text-7xl font-bold">{currLetter}</p>
         </div>
-        <div className="bg-white w-1/2 h-40 flex items-center justify-center rounded-md">
+        <div className="utility-display">
           <img src={image} className="w-36" alt={letter} />
         </div>
       </div>
@@ -207,7 +162,7 @@ const RecognitionConsole = () => {
           Wrong letter, you have written {wrongLetterWord}{" "}
         </h1>
       )}
-      {correct && <h1 className="text-2xl font-bold">You are correct 🎉🎉 </h1> }
+      {correct && <h1 className="text-2xl font-bold">You are correct 🎉🎉 </h1>}
       {correct && <ConfettiExplosion numberOfPieces={400} duration={4000} />}
       {/*here the text is written by the child and is recognised by the model */}
       <div
