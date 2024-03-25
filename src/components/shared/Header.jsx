@@ -8,19 +8,19 @@ const Header = () => {
   const user = JSON.parse(localStorage.getItem("user")) || null;
   const menuData = [
     {
-      title: "Home",
+      title: "HOME",
       path: "/",
     },
     {
-      title: "Parent",
+      title: "PARENT",
       path: "/parent",
     },
     {
-      title: "Child",
+      title: "CHILD",
       path: "/child",
     },
     {
-      title : "Recognition",
+      title : "RECOGNITION",
       path :"/recognition"
     }
   ];

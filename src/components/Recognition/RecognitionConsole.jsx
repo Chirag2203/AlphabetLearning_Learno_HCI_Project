@@ -16,6 +16,12 @@ const RecognitionConsole = () => {
   const [wrongLetter, setWrongLetter] = useState(false);
   const [correct, setCorrect] = useState(false);
   const [wrongLetterWord, setWrongLetterWord] = useState("");
+  const [statistics, setStatistics] = useState({
+    correct: 0,
+    wrong: 0,
+    letter: "A"
+  });
+
   // Update currLetter whenever currentIndex changes
   useEffect(() => {
     const { letter } = alphabetData[currentIndex];
@@ -58,28 +64,31 @@ const RecognitionConsole = () => {
       .getElementById("prediction-0")
       .textContent.trim();
 
-    // Get the letter displayed in the child console directly from the alphabetData array
     const { letter } = alphabetData[currentIndex];
-    console.log("letter", letter);
-    console.log(
-      "Prediction value:",
-      firstPredictionText,
-      "Current letter value:",
-      currLetter
-    );
 
-    // Compare the first prediction with the displayed letter (convert both to uppercase for case-insensitive comparison)
     if (firstPredictionText.toUpperCase() === currLetter.trim().toUpperCase()) {
       toast.success("Prediction matches the displayed letter!");
       clearCanvas();
       setCorrect(true);
       setWrongLetter(false);
+
+      // Update local storage for correct writings
+      const localStorageData = JSON.parse(localStorage.getItem("writingStats")) || { correct: 0, wrong: 0, letter:"A" };
+      localStorageData.correct += 1;
+      localStorage.setItem("writingStats", JSON.stringify(localStorageData));
     } else {
       setWrongLetter(true);
       setCorrect(false);
       setWrongLetterWord(firstPredictionText);
       toast.error("Prediction does not match the displayed letter.");
+
+      // Update local storage for wrong writings
+      const localStorageData = JSON.parse(localStorage.getItem("writingStats")) || { correct: 0, wrong: 0, letter:"A" };
+      localStorageData.wrong += 1;
+      localStorage.setItem("writingStats", JSON.stringify(localStorageData));
     }
+    console.log(JSON.parse(localStorage.getItem("writingStats")));
+
   };
 
   useEffect(() => {
@@ -98,15 +107,31 @@ const RecognitionConsole = () => {
     setCurrentIndex(nextIndex);
     setCurrLetter(nextLetter);
 
+    // update the local storage
+    const localStorageData = JSON.parse(localStorage.getItem("writingStats")) || { correct: 0, wrong: 0, letter:"A" };
+    localStorageData.correct=0;
+    localStorageData.wrong=0;
+    localStorageData.letter=nextLetter;
+
+    localStorage.setItem("writingStats", JSON.stringify(localStorageData));
+
     console.log("current letter set to ", nextLetter);
     clearCanvas();
   };
 
   const handlePrevious = () => {
     setCorrect(false)
-    setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + alphabetData.length) % alphabetData.length
-    );
+    const prevIndex = (currentIndex - 1 + alphabetData.length) % alphabetData.length;
+    setCurrentIndex(prevIndex);
+    const prevLetter = alphabetData[prevIndex].letter;
+
+    // update the local storage
+    const localStorageData = JSON.parse(localStorage.getItem("writingStats")) || { correct: 0, wrong: 0, letter:"A" };
+    localStorageData.correct=0;
+    localStorageData.wrong=0;
+    localStorageData.letter=prevLetter;
+    localStorage.setItem("writingStats", JSON.stringify(localStorageData));
+
   };
 
   const { letter, word, image } = alphabetData[currentIndex];
@@ -163,6 +188,7 @@ const RecognitionConsole = () => {
         </h1>
       )}
       {correct && <h1 className="text-2xl font-bold">You are correct 🎉🎉 </h1>}
+      {correct && <ConfettiExplosion numberOfPieces={200} duration={6000} />}
       {correct && <ConfettiExplosion numberOfPieces={400} duration={4000} />}
       {/*here the text is written by the child and is recognised by the model */}
       <div
@@ -176,7 +202,7 @@ const RecognitionConsole = () => {
     <p>write here</p>
       <div class="draw-panel flex gap-1">
         <div class="col mr-56">
-          <div class="card-panel canvas-panel no-pad hoverable">
+          <div class="card-paneL canvas-paneL no-pad hoverable">
             <canvas
               class="canvas elevation"
               id="canvas"
