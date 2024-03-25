@@ -9,6 +9,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import cheer from "../../assets/crowd-cheering.mp3";
 import { speakOnLoad, speakWord } from "@/lib/utils";
+import axios from "axios";
+import Loader from "../shared/Loader";
 
 const RecognitionConsole = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -16,11 +18,14 @@ const RecognitionConsole = () => {
   const [wrongLetter, setWrongLetter] = useState(false);
   const [correct, setCorrect] = useState(false);
   const [wrongLetterWord, setWrongLetterWord] = useState("");
+  const [AiText, setAiText] = useState("");
   const [statistics, setStatistics] = useState({
     correct: 0,
     wrong: 0,
-    letter: "A"
+    letter: "A",
   });
+  const [chatHistory, setChatHistory] = useState([]);
+  const[ loading, setLoading] = useState(false);
 
   // Update currLetter whenever currentIndex changes
   useEffect(() => {
@@ -87,8 +92,10 @@ const RecognitionConsole = () => {
       localStorageData.wrong += 1;
       localStorage.setItem("writingStats", JSON.stringify(localStorageData));
     }
-    console.log(JSON.parse(localStorage.getItem("writingStats")));
 
+    sendRequest()
+   
+    console.log(JSON.parse(localStorage.getItem("writingStats")));
   };
 
   useEffect(() => {
@@ -99,19 +106,23 @@ const RecognitionConsole = () => {
     };
   }, []);
 
-   const handleNext = () => {
+  const handleNext = () => {
     const nextIndex = (currentIndex + 1) % alphabetData.length;
     const nextLetter = alphabetData[nextIndex].letter;
 
-    setCorrect(false)
+    setCorrect(false);
     setCurrentIndex(nextIndex);
     setCurrLetter(nextLetter);
+    setChatHistory([]);
+    setWrongLetter(false);
 
     // update the local storage
-    const localStorageData = JSON.parse(localStorage.getItem("writingStats")) || { correct: 0, wrong: 0, letter:"A" };
-    localStorageData.correct=0;
-    localStorageData.wrong=0;
-    localStorageData.letter=nextLetter;
+    const localStorageData = JSON.parse(
+      localStorage.getItem("writingStats")
+    ) || { correct: 0, wrong: 0, letter: "A" };
+    localStorageData.correct = 0;
+    localStorageData.wrong = 0;
+    localStorageData.letter = nextLetter;
 
     localStorage.setItem("writingStats", JSON.stringify(localStorageData));
 
@@ -120,25 +131,83 @@ const RecognitionConsole = () => {
   };
 
   const handlePrevious = () => {
-    setCorrect(false)
-    const prevIndex = (currentIndex - 1 + alphabetData.length) % alphabetData.length;
+    setCorrect(false);
+    const prevIndex =
+      (currentIndex - 1 + alphabetData.length) % alphabetData.length;
     setCurrentIndex(prevIndex);
-    const prevLetter = alphabetData[prevIndex].letter;
+    const prevLetter = alphabetData[prevIndex].letter
+    setChatHistory([]);
 
     // update the local storage
-    const localStorageData = JSON.parse(localStorage.getItem("writingStats")) || { correct: 0, wrong: 0, letter:"A" };
-    localStorageData.correct=0;
-    localStorageData.wrong=0;
-    localStorageData.letter=prevLetter;
+    const localStorageData = JSON.parse(
+      localStorage.getItem("writingStats")
+    ) || { correct: 0, wrong: 0, letter: "A" };
+    localStorageData.correct = 0;
+    localStorageData.wrong = 0;
+    localStorageData.letter = prevLetter;
     localStorage.setItem("writingStats", JSON.stringify(localStorageData));
-
   };
 
   const { letter, word, image } = alphabetData[currentIndex];
 
+  // send api request to backend
+  const sendRequest = async () => {
+    const statisticsLocal = JSON.parse(localStorage.getItem("writingStats"));
+    const message = `The student has written ${statisticsLocal.letter} ${statisticsLocal.correct} times correctly and ${statisticsLocal.wrong} times wrong. `;
+    console.log(message)
+    try {
+      setLoading(true)
+      const options = {
+        method: "POST",
+        body: JSON.stringify({
+          history: chatHistory,
+          message: message,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await fetch("http://localhost:8000/motivate", options);
+      const data = await response.text();
+      console.log(data);
+      console.log(response);
+
+      setChatHistory((oldChatHistory) => [
+        ...oldChatHistory,
+        {
+          role: "user",
+          parts: [
+            {
+              text: message,
+            },
+          ],
+        },
+        {
+          role: "model",
+          parts: [
+            {
+              text: data,
+            },
+          ],
+        },
+      ]);
+      console.log(chatHistory)
+      setAiText(data)
+      // speak this ai text
+      speakWord(data)
+      setLoading(false)
+    } catch (error) {
+      setLoading(false)
+      console.error(error);
+      toast.error("Failed to send request to the server.");
+      
+    }
+  };
+
   return (
     <div className="flex flex-col items-center gap-4">
-      {correct && <ConfettiExplosion numberOfPieces={400} duration={6000} />}
+      {!loading && correct && <ConfettiExplosion numberOfPieces={400} duration={4000} />}
+      {!loading && correct && <ConfettiExplosion numberOfPieces={400} duration={6000} />}
       <ToastContainer />
       <h1 className="text-center text-4xl font-bold pt-24">
         Letter Auto Recognition
@@ -147,7 +216,9 @@ const RecognitionConsole = () => {
         <p className="">Child Console</p>
         <div className="flex flex-wrap items-center gap-2 sm:mt-0 mt-4">
           <Button
-            onClick={()=>{speakWord(word)}}
+            onClick={() => {
+              speakWord(word);
+            }}
             className="speak-button utility-btn"
           >
             Speak <HiSpeakerphone />
@@ -158,10 +229,7 @@ const RecognitionConsole = () => {
           >
             <FaArrowLeft /> Previous{" "}
           </Button>
-          <Button
-            onClick={handleNext}
-            className="next-button utility-btn"
-          >
+          <Button onClick={handleNext} className="next-button utility-btn">
             Next <FaArrowRight />
           </Button>
           <Button
@@ -181,15 +249,25 @@ const RecognitionConsole = () => {
           <img src={image} className="w-36" alt={letter} />
         </div>
       </div>
-      <h1>Write in the given area</h1>
-      {wrongLetter && (
-        <h1 className="text-2xl font-bold">
+      {loading && (
+        <Loader />  
+      )}
+      {!loading && wrongLetter && (
+        <div className="flex flex-col items-center justify-center gap-2 w-3/4">
+          <h1 className="text-2xl font-bold">
           Wrong letter, you have written {wrongLetterWord}{" "}
         </h1>
+        <h1 className="text-2xl font-bold text-center">
+          {AiText}
+        </h1>
+        </div>
       )}
-      {correct && <h1 className="text-2xl font-bold">You are correct 🎉🎉 </h1>}
-      {correct && <ConfettiExplosion numberOfPieces={200} duration={6000} />}
-      {correct && <ConfettiExplosion numberOfPieces={400} duration={4000} />}
+      {!loading && correct &&(<div className="flex flex-col items-center justify-center gap-2 w-3/4">
+        <h1 className="text-2xl font-bold">You are correct 🎉🎉 </h1>
+        <h1 className="text-2xl font-bold text-center">{AiText} </h1>
+      </div>)}
+      {!loading && correct && <ConfettiExplosion numberOfPieces={200} duration={6000} />}
+      {!loading && correct && <ConfettiExplosion numberOfPieces={400} duration={4000} />}
       {/*here the text is written by the child and is recognised by the model */}
       <div
         className="pt-4 min-h-screen"
