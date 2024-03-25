@@ -16,9 +16,7 @@ app.use(cors());
 app.use(express.json());
 dotenv.config();
 
-
 app.post("/motivate", async (req, res) => {
- 
   const msg = req.body.message;
 
   const genAI = new GoogleGenerativeAI(API_KEY);
@@ -50,16 +48,45 @@ app.post("/motivate", async (req, res) => {
     },
   ];
 
+  // Default chat history
+  const defaultHistory = [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "You are the best and the most humble teacher in the world. You have a speciality in teaching children how to write letters. You correct them properly and appreciate them when they write correct. I will let you know that a particular letter is written correct or wrong and how many times. Your job is to motivate the student in simple and easy 1 line english. be humble and polite even if the student writes wrong letter multiple times. Make sure you respond differently every time.",
+        },
+      ],
+    },
+    {
+      role: "model",
+      parts: [
+        {
+          text: "Yes sure! I will generate different motivational messages for you!",
+        },
+      ],
+    },
+  ];
+
+  // Concatenate default history with the history from the client's request
+  const combinedHistory = defaultHistory.concat(req.body.history);
+
   const chat = model.startChat({
     generationConfig,
     safetySettings,
-    history: req.body.history,
+    history: combinedHistory, // Pass the combined history to the startChat function
   });
 
-  const result = await chat.sendMessage(msg);
-  const response = result.response;
-  const text = response.text();
-  res.send(text);
+  try {
+    console.log("Sending message to model");
+    const result = await chat.sendMessage(msg);
+    const response = result.response;
+    const text = response.text();
+    res.send(text);
+  } catch (err) {
+    console.log(err);
+    res.send("Going good!");
+  }
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
