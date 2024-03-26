@@ -15,6 +15,7 @@ import Loader from "../shared/Loader";
 const RecognitionConsole = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currLetter, setCurrLetter] = useState("");
+  const [currLetterIndex, setCurrLetterIndex] = useState(0);
   const [wrongLetter, setWrongLetter] = useState(false);
   const [correct, setCorrect] = useState(false);
   const [wrongLetterWord, setWrongLetterWord] = useState("");
@@ -31,6 +32,9 @@ const RecognitionConsole = () => {
   useEffect(() => {
     const { letter } = alphabetData[currentIndex];
     setCurrLetter(() => letter); // Using callback function syntax
+    //randomly pick one
+    const randomIndex = Math.floor(Math.random() * alphabetData[currentIndex].word.length);
+    setCurrLetterIndex(randomIndex);
   }, [currentIndex]);
 
   // play sound when correct is true for 3 sec
@@ -217,7 +221,7 @@ const RecognitionConsole = () => {
         <div className="flex flex-wrap items-center gap-2 sm:mt-0 mt-4">
           <Button
             onClick={() => {
-              speakWord(word);
+              speakWord(word[currLetterIndex]);
             }}
             className="speak-button utility-btn"
           >
@@ -246,7 +250,7 @@ const RecognitionConsole = () => {
           <p className="text-black text-7xl font-bold">{currLetter}</p>
         </div>
         <div className="utility-display">
-          <img src={image} className="w-36" alt={letter} />
+          <img src={image[currLetterIndex]} className="h-32 p-2" alt={letter} />
         </div>
       </div>
       {loading && (
@@ -277,8 +281,8 @@ const RecognitionConsole = () => {
 
   <div class="container">
     <div class="row ">
-    <p>write here</p>
       <div class="draw-panel flex gap-1">
+      <img src="/pointer.gif" alt="A" width="250px" />
         <div class="col mr-56">
           <div class="card-paneL canvas-paneL no-pad hoverable">
             <canvas
