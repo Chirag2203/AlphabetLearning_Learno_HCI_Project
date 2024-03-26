@@ -90,4 +90,82 @@ app.post("/motivate", async (req, res) => {
   }
 });
 
+
+app.post("/tips", async (req, res) => {
+  const msg = req.body.message;
+
+  const genAI = new GoogleGenerativeAI(API_KEY);
+  const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+
+  const generationConfig = {
+    temperature: 0.9,
+    topK: 1,
+    topP: 1,
+    maxOutputTokens: 2048,
+  };
+
+  const safetySettings = [
+    {
+      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+    },
+    {
+      category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+    },
+    {
+      category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+    },
+    {
+      category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+      threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+    },
+  ];
+
+  // Default chat history for tips
+  const defaultHistory = [
+    {
+      role: "user",
+      parts: [
+        {
+          text: "My child is struggling with learning. Can you provide some tips to improve their performance? I would like to know how to help them learn the letters better. Give me 3 tips as points. Dont add any special characters in the tips. Just simple english. Dont make any letter bold",
+        },
+      ],
+    },
+    {
+      role: "model",
+      parts: [
+        {
+          text: "Sure! please provide me with some more information about your child's learning style and the letter they are struggling with.",
+        },
+      ],
+    },
+  ];
+
+  // Concatenate default history with the history from the client's request
+  const combinedHistory = defaultHistory.concat(req.body.history);
+
+  const chat = model.startChat({
+    generationConfig,
+    safetySettings,
+    history: combinedHistory, // Pass the combined history to the startChat function
+  });
+
+  try {
+    console.log("Sending message to model");
+    const result = await chat.sendMessage(msg);
+    const response = result.response;
+
+    // Split the response text into an array of strings based on newline characters
+    const tips = response.text().split("\n");
+
+    res.send(tips);
+  } catch (err) {
+    console.log(err);
+    res.send(["Sorry, I couldn't provide tips at the moment. Please try again later."]);
+  }
+});
+
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
