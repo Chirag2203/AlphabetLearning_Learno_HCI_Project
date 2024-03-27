@@ -10,6 +10,7 @@ import { speakWord, startIntro } from "@/lib/utils";
 
 const ChildConsole = () => {
   const [currentIndex, setCurrentIndex] = useState(0); 
+  const [currLetterIndex, setCurrLetterIndex] = useState(0);
   const [isDrawing, setIsDrawing] = useState(false); 
   const [penColor, setPenColor] = useState("#000000"); 
   const [penWidth, setPenWidth] = useState(5); 
@@ -21,6 +22,8 @@ const ChildConsole = () => {
     const context = canvas.getContext("2d");
     context.clearRect(0, 0, canvas.width, canvas.height); 
     drawLetter(context); 
+    const randomIndex = Math.floor(Math.random() * alphabetData[currentIndex].word.length);
+    setCurrLetterIndex(randomIndex);
   }, [currentIndex]);
   useEffect(() => {
     startIntro();
@@ -95,7 +98,7 @@ const ChildConsole = () => {
             Clear
           </Button>
           <Button
-            onClick={()=>{speakWord(word)}}
+            onClick={()=>{speakWord(word[currLetterIndex])}}
             className="speak-button utility-btn"
           >
             Speak <HiSpeakerphone />
@@ -119,7 +122,7 @@ const ChildConsole = () => {
           <p className="text-black text-7xl font-bold">{letter}</p>
         </div>
         <div className="utility-display">
-          <img src={image} className="w-36" alt={letter} />
+          <img src={image[currLetterIndex]} className="w-36" alt={letter} />
         </div>
       </div>
       <div className="canvas-div w-full h-96 rounded-md border-dashed flex items-center border justify-center cursor-pointer">

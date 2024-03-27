@@ -18,7 +18,7 @@ const App = () => {
           <Route path="/recognition" element ={<RecognitionConsole/>}/> 
           <Route path="/" element={<Home />} />
         </Routes>
-        <Footer />
+        {/* <Footer /> */}
       </Router>
       
     </div>
