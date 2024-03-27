@@ -119,10 +119,10 @@ const ChildConsole = () => {
       </div>
       <div className="flex items-center gap-4 my-4 ">
         <div className="utility-display">
-          <p className="text-black text-7xl font-bold">{letter}</p>
+          <p className="text-black text-9xl font-bold">{letter}</p>
         </div>
         <div className="utility-display">
-          <img src={image[currLetterIndex]} className="w-36" alt={letter} />
+          <img src={image[currLetterIndex]} className="w-32" alt={letter} />
         </div>
       </div>
       <div className="canvas-div w-full h-96 rounded-md border-dashed flex items-center border justify-center cursor-pointer">

@@ -209,15 +209,12 @@ const RecognitionConsole = () => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-4 pt-16">
       {!loading && correct && <ConfettiExplosion numberOfPieces={400} duration={4000} />}
       {!loading && correct && <ConfettiExplosion numberOfPieces={400} duration={6000} />}
       <ToastContainer />
-      <h1 className="text-center text-4xl font-bold pt-24">
-        Letter Auto Recognition
-      </h1>
       <div className="utility-bar">
-        <p className="">Child Console</p>
+        <p className="">Recognition</p>
         <div className="flex flex-wrap items-center gap-2 sm:mt-0 mt-4">
           <Button
             onClick={() => {
