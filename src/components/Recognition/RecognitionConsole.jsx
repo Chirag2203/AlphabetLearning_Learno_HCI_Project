@@ -105,6 +105,7 @@ const RecognitionConsole = () => {
   useEffect(() => {
     const message = "Hello buddy! Please write in the specified area.";
     speakOnLoad(message);
+    localStorage.setItem("writingStats", JSON.stringify({ correct: 0, wrong: 0, letter: "A" }));
     return () => {
       window.speechSynthesis.cancel();
     };
@@ -244,7 +245,7 @@ const RecognitionConsole = () => {
       </div>
       <div className="flex items-center gap-4 my-4 w-3/4 ">
         <div className="utility-display">
-          <p className="text-black text-7xl font-bold">{currLetter}</p>
+          <p className="text-black text-8xl font-bold">{currLetter}</p>
         </div>
         <div className="utility-display">
           <img src={image[currLetterIndex]} className="h-32 p-2" alt={letter} />
