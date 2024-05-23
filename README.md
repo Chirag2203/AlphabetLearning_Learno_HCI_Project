@@ -34,9 +34,17 @@ Children have the following features and options to work with
 
 ## Run Locally
 To run the application, use the following commands.
+
 ```bash
+//backend
+cd backend
 npm i
 npm run dev
+
+//frontend
+npm i
+npm run dev
+
 
 ```
 
